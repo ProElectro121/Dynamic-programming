@@ -1,0 +1,79 @@
+/*I can move ffrom current grid cell to bottom and bottom left and bottom right*/
+
+/*Using memoisation*/
+
+#include <bits/stdc++.h> 
+
+int maxSum(vector<vector<int>>& matrix , int i , int j , int m , int n , vector<vector<int>>& dp) {
+    if(i == m - 1) return matrix[i][j];
+
+    if(dp[i][j] != -1) return dp[i][j];
+
+    int left = INT_MIN , bottom = INT_MIN , right = INT_MIN;
+
+    if(j - 1 >= 0) {
+        left = matrix[i][j] + maxSum(matrix , i + 1 , j - 1 , m , n , dp);
+    }
+    bottom = matrix[i][j] + maxSum(matrix , i + 1 , j , m , n , dp);
+    if(j + 1 < n) {
+        right = matrix[i][j] + maxSum(matrix , i + 1 , j + 1 , m , n , dp);
+    }
+
+    return dp[i][j] = max(left , max(bottom , right));
+}
+
+int getMaxPathSum(vector<vector<int>> &matrix) {
+    int maxi = INT_MIN;
+    int m = matrix.size();
+    int n = matrix[0].size();
+
+
+    for(int i = 0; i < n; i++) {
+        vector<vector<int>> dp(m , vector<int>(n , -1));
+        maxi = max(maxi , maxSum(matrix , 0 , i , m , n , dp));
+    }
+    return maxi;
+}
+
+
+/*Using tabulation*/
+
+#include <bits/stdc++.h> 
+
+int getMaxPathSum(vector<vector<int>> &matrix) {
+    int m = matrix.size();
+    int n = matrix[0].size();
+
+    vector<vector<int>> dp(m, vector<int>(n , -1));
+    for(int i = 0; i < n; i++) {
+        dp[0][i] = matrix[0][i];
+    }
+
+    for(int i = 1; i < m; i++) {
+        for(int j = 0; j < n; j++) {
+            if(j == 0) {
+                if(n > 1)
+                    dp[i][j] = max(dp[i - 1][j] , dp[i - 1][j + 1]) + matrix[i][j];
+                else
+                    dp[i][j] = dp[i - 1][j] + matrix[i][j]; 
+            }
+            else if(j == n - 1) {
+                if(n > 1) {
+                    dp[i][j] = max(dp[i - 1][j] , dp[i - 1][j - 1]) + matrix[i][j];
+                }
+                else
+                    dp[i][j] = dp[i - 1][j] + matrix[i][j];
+            }
+            else {
+                dp[i][j] = max(dp[i - 1][j] , max(dp[i - 1][j - 1] , dp[i - 1][j + 1])) + matrix[i][j];
+            }
+        }
+    }
+
+    int maxi = INT_MIN;
+
+    for(int i = 0; i < n; i++) {
+        maxi = max(maxi , dp[m - 1][i]);
+    }
+    return maxi;
+}
